@@ -129,6 +129,7 @@ public InventoryGUI(Plugin plugin, String title, int rows)
         }
       } else {
         e.getWhoClicked().openInventory(e.getInventory());
+        //
       }
     }
   }
