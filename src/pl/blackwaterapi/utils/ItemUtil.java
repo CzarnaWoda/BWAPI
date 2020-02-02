@@ -15,17 +15,17 @@ public class ItemUtil
     private static HashMap<Material, String> polishNames;
     public static List<ItemStack> getItems(String string, int modifier)
     {
-      ArrayList items = new ArrayList();
-      String[] arrayOfString1;
-      int j = (arrayOfString1 = string.split(";")).length;
-      for (int i = 0; i < j; i++)
-      {
-        String s = arrayOfString1[i];
-        String[] split = s.split("-");
-        int id = Integer.parseInt(split[0].split(":")[0]);
-        int data = Integer.parseInt(split[0].split(":")[1]);
-        int amount = Integer.parseInt(split[1]) * modifier;
-        items.add(new ItemStack(Material.getMaterial(id), amount, (short)data));
+        //id:data-amount;id:data-amount;
+      ArrayList<ItemStack> items = new ArrayList<>();
+      String[] array = string.split(";");
+      for(String s : array){
+          String[] array2 = s.split(":");
+          final int id = Integer.parseInt(array2[0]);
+          String[] array3 = array2[1].split("-");
+          final short data = Short.parseShort(array3[0]);
+          final int amount = Integer.parseInt(array3[1]);
+          final ItemStack itemStack = new ItemStack(Material.getMaterial(id),amount*modifier,data);
+          items.add(itemStack);
       }
       return items;
     }

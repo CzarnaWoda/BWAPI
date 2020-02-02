@@ -122,7 +122,6 @@ public InventoryGUI(Plugin plugin, String title, int rows)
         final Player player = (Player) e.getWhoClicked();
         if(!player.hasPermission("core.admin") && times.get(player.getUniqueId()) != null && times.get(player.getUniqueId()) > System.currentTimeMillis()){
           Util.sendMsg(player, Util.fixColor(Util.replaceString("&4Blad: &cNie mozesz tak czesto klikac !")));
-          return;
         }else {
           times.put(player.getUniqueId(),System.currentTimeMillis() + 500L);
           action.execute(player, e.getInventory(), e.getRawSlot(), e.getInventory().getItem(e.getRawSlot()));
