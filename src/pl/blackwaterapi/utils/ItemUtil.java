@@ -15,15 +15,14 @@ public class ItemUtil
     private static HashMap<Material, String> polishNames;
     public static List<ItemStack> getItems(String string, int modifier)
     {
-        //id:data-amount;id:data-amount;
+        //id:data:amount;id:data:amount;
       ArrayList<ItemStack> items = new ArrayList<>();
       String[] array = string.split(";");
       for(String s : array){
           String[] array2 = s.split(":");
           final int id = Integer.parseInt(array2[0]);
-          String[] array3 = array2[1].split("-");
-          final short data = Short.parseShort(array3[0]);
-          final int amount = Integer.parseInt(array3[1]);
+          final short data = Short.parseShort(array2[1]);
+          final int amount = Integer.parseInt(array2[2]);
           final ItemStack itemStack = new ItemStack(Material.getMaterial(id),amount*modifier,data);
           items.add(itemStack);
       }
