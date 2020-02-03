@@ -19,7 +19,10 @@ public class ItemUtil
       ArrayList<ItemStack> items = new ArrayList<>();
       String[] array = string.split(";");
       for(String s : array){
-          String[] array2 = s.split(":");
+          String[] array2 = s.split("-");
+          for (int i = 0; i < array2.length; i ++) {
+              array2[i] = array2[i];
+          }
           final int id = Integer.parseInt(array2[0]);
           final short data = Short.parseShort(array2[1]);
           final int amount = Integer.parseInt(array2[2]);
@@ -42,8 +45,12 @@ public class ItemUtil
     
     public static String getItems(List<ItemStack> items) {
         StringBuilder sb = new StringBuilder();
-        for (ItemStack item : items) {
-            sb.append(getPolishMaterial(item.getType())).append(" §8(§c").append(item.getAmount()).append(" ").append("szt§8)").append("§7,§6 ");
+        for(int i = 0; i < items.size(); i ++){
+            ItemStack item = items.get(i);
+            if(i+1 == items.size()){
+                sb.append(getPolishMaterial(item.getType())).append(" §8(§c").append(item.getAmount()).append(" ").append("szt§8)");
+            }else
+                sb.append(getPolishMaterial(item.getType())).append(" §8(§c").append(item.getAmount()).append(" ").append("szt§8)").append("§7,§4 ");
         }
         return sb.toString();
     }
