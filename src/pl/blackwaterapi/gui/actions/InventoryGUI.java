@@ -31,15 +31,11 @@ public InventoryGUI(Plugin plugin, String title, int rows)
     Bukkit.getPluginManager().registerEvents(this, plugin);
   }
   public InventoryGUI clone(){
-    try {
-      return (InventoryGUI) super.clone();
-    } catch (CloneNotSupportedException e) {
-      e.printStackTrace();
-    }
     InventoryGUI inventoryGUI = new InventoryGUI(plugin,inventory.getTitle(),inventory.getSize()/9);
     int i = 0;
     for(ItemStack content : inventory.getContents()){
       inventoryGUI.setItem(i,content,actions.get(i));
+      i++;
     }
     return inventoryGUI;
   }
