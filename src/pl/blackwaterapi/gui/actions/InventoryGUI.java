@@ -1,24 +1,19 @@
 package pl.blackwaterapi.gui.actions;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.UUID;
-
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.event.inventory.InventoryCloseEvent;
-import org.bukkit.event.inventory.InventoryDragEvent;
-import org.bukkit.event.inventory.InventoryInteractEvent;
-import org.bukkit.event.inventory.InventoryMoveItemEvent;
-import org.bukkit.event.inventory.InventoryOpenEvent;
+import org.bukkit.event.inventory.*;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 import pl.blackwaterapi.utils.Util;
+
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.UUID;
 
 public class InventoryGUI
   implements Listener
@@ -26,13 +21,27 @@ public class InventoryGUI
   private Inventory inventory;
   private HashMap<Integer, IAction> actions;
   private HashMap<UUID, Long> times = new HashMap<>();
+  private Plugin plugin;
   
 public InventoryGUI(Plugin plugin, String title, int rows)
   {
     this.inventory = Bukkit.createInventory(null, rows * 9, ChatColor.translateAlternateColorCodes('&', title));
     this.actions = new HashMap<>();
-    
+    this.plugin = plugin;
     Bukkit.getPluginManager().registerEvents(this, plugin);
+  }
+  public InventoryGUI clone(){
+    try {
+      return (InventoryGUI) super.clone();
+    } catch (CloneNotSupportedException e) {
+      e.printStackTrace();
+    }
+    InventoryGUI inventoryGUI = new InventoryGUI(plugin,inventory.getTitle(),inventory.getSize()/9);
+    int i = 0;
+    for(ItemStack content : inventory.getContents()){
+      inventoryGUI.setItem(i,content,actions.get(i));
+    }
+    return inventoryGUI;
   }
   
   public void setItem(int slot, ItemStack itemStack, IAction clickAction)
