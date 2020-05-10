@@ -1,0 +1,11 @@
+database:
+  tableprefix: chestpvp_
+  mysql:
+    host: localhost
+    port: 3306
+    user: root
+    pass: haslo
+    name: chestpvp
+superadminsystem:
+  adminuuid:
+    - '4da2f652-2283-4cd4-bf37-c410f566524d'

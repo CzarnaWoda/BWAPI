@@ -22,6 +22,4 @@ public interface Store
     void update(boolean p0, String p1);
     
     ResultSet update(String p0);
-    
-    StoreMode getStoreMode();
 }

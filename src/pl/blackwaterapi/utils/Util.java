@@ -195,8 +195,7 @@ public class Util
       return new String(baos.toByteArray(), encoding);
     }
     
-    @SuppressWarnings({"rawtypes" })
-	public static ItemStack getItemStack(Material m, short data, int amount, HashMap<Enchantment, Integer> enchants) {
+    public static ItemStack getItemStack(Material m, short data, int amount, HashMap<Enchantment, Integer> enchants) {
         ItemStack item;
         int a = 64;
         if (amount >= 1) a = amount;
@@ -372,11 +371,7 @@ public class Util
             return -1L;
         }
     }
-    
-    public static void main(String[] args) {
-        System.out.println(getDate(1418431585969L));
-    }
-    
+
     static {
         dateFormat = new SimpleDateFormat("dd/MM/yyyy, HH:mm:ss");
         timeFormat = new SimpleDateFormat("HH:mm:ss");

@@ -1,143 +1,99 @@
 package pl.blackwaterapi.commands;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.bukkit.Bukkit;
-import org.bukkit.Chunk;
-import org.bukkit.World;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.ExperienceOrb;
-import org.bukkit.entity.FallingBlock;
-import org.bukkit.entity.Item;
-import org.bukkit.entity.Monster;
+import org.bukkit.Material;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
-import org.bukkit.entity.TNTPrimed;
-import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.plugin.Plugin;
-
-import lombok.Getter;
-import pl.blackwaterapi.data.Config;
-import pl.blackwaterapi.utils.APIGui;
-import pl.blackwaterapi.utils.Ticking;
+import pl.blackwaterapi.API;
+import pl.blackwaterapi.data.APIConfig;
+import pl.blackwaterapi.gui.actions.InventoryGUI;
+import pl.blackwaterapi.objects.CommandLog;
+import pl.blackwaterapi.utils.ItemUtil;
 import pl.blackwaterapi.utils.Util;
 
-public class APICommand extends PlayerCommand implements Listener{
-	@Getter public static List<String> tpsUsers = new ArrayList<>();
-	public APICommand() {
-		super("api", "Main API Command", "/api [livetps/historytps/plugins/manager]", "api.admin");
-		// TODO Auto-generated constructor stub
-	}
+import java.util.UUID;
 
-	@Override
-	public boolean onCommand(Player p, String[] args) {
-		if(args.length == 0){
-			return Util.sendMsg(p, "&4Blad: &cPoprawne uzycie: " + getUsage());
-		}else{
-			if(args.length == 1){
-				if(args[0].equalsIgnoreCase("livetps")){
-					if(!getTpsUsers().contains(p.getName())){
-					getTpsUsers().add(p.getName());
-					Util.sendMsg(p, "&8[&2&lBlackWater-API&8] &e&lPodglad TPS - LiveTime zostal wlaczony !");
-					}else{
-						getTpsUsers().remove(p.getName());
-						Util.sendMsg(p, "&8[&2&lBlackWater-API&8] &e&lPodglad TPS - LiveTime zostal wylaczony !");
-					}
-				}else if (args[0].equalsIgnoreCase("historytps")){
-					int i = 1;
-					Util.sendMsg(p, "&8[&2&lBlackWater-API&8] &cTPS History: ");
-					for(Double d : Ticking.getHistory()){	
-						Util.sendMsg(p, "&8" + i + ". &7Ticks Per Second: &6" + d);
-						i++;
-					}
-				}else if (args[0].equalsIgnoreCase("plugins")){
-					int i = 1;
-					for(Plugin plugin : Bukkit.getPluginManager().getPlugins()){
-						Util.SendRun_CommandTextComponent(p, Util.fixColor("&8" + i + ". &7Plugin Name: &6" + plugin.getName()), "/api plugins " + plugin.getName(), "&6&lClick to view more about this plugin");
-						i++;
-					}
-				}else if (args[0].equalsIgnoreCase("manager")){
-					APIGui.OpenMenu(p);
-				}
-			}else if(args.length == 2){
-				if(args[0].equalsIgnoreCase("plugins") && isPlugin(args[1])){
-					Plugin plugin = getPlugin(args[1]);
-					Util.sendMsg(p, "&7Plugin name: &6" + plugin.getName());
-					Util.sendMsg(p, "&7Plugin version: &6" + plugin.getDescription().getVersion());
-					Util.sendMsg(p, "&7Plugin description: &6" + plugin.getDescription().getDescription());
-					Util.sendMsg(p, "&7Plugin main: &6" + plugin.getDescription().getMain());
-					Util.sendMsg(p, "&7Plugin authors: &6" + plugin.getDescription().getAuthors().toString().replace("[", "").replace("]", ""));
-				}
-			}
-		}
-		return false;
-	}
-	private static boolean isPlugin(String s){
-		for(Plugin pl : Bukkit.getPluginManager().getPlugins()){
-			if(pl.getName().equalsIgnoreCase(s)){
-				return true;
-			}
-		}
-		return false;
-	}
-	public static Plugin getPlugin(String name){
-		for(Plugin pl : Bukkit.getPluginManager().getPlugins()){
-			if(pl.getName().equalsIgnoreCase(name)){
-				return pl;
-			}
-		}
-		return null;
-	}
-	@EventHandler
-	public void onInvClick(InventoryClickEvent e){
-		if(Util.fixColor(Config.API_GUI_NAME).equalsIgnoreCase(e.getInventory().getName())){
-			e.setCancelled(true);
-			Player p = (Player) e.getWhoClicked();
-            ItemStack item = e.getCurrentItem();
-            if (item != null) {
-                ItemMeta meta = item.getItemMeta();
-                if (meta != null) {
-                    if (meta.getDisplayName() != null && meta.getDisplayName().equals(Util.fixColor("&2BW-API &8» &7Try: &6Delete Lags"))) {
-                    Util.sendMsg(p, "&cRemove entities...");
-                    int i = 0;
-                    	for(World w : Bukkit.getWorlds()){
-                    		for(Entity ent : w.getEntities()){
-                    			if(isRemovable(ent)){
-                    				ent.remove();
-                    				i++;
-                    			}
-                    	}
-                    	}
-                    	Util.sendMsg(p, "&cEntities was removed, amount of entities: " + i);
-                        Util.sendMsg(p, "&cRefresh chunks...");
-                    	int ii = 0;
-                    	for(World w : Bukkit.getWorlds()){
-                    		for(Chunk c : w.getLoadedChunks()){
-                    			c.unload();
-                    			c.load();
-                    			ii++;
-                    		}
-                    	}
-                    	Util.sendMsg(p, "&cChunks was refreshed, amount of chunks: " + ii);
-                    	if(isPlugin("ClearLag")){
-                            Util.sendMsg(p, "&cEnabling lagg halt...");
-                    		Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "lagg halt");
-                            Util.sendMsg(p, "&cLagg halt was enabling...");
-                    	}else{
-                    		Util.sendMsg(p, "&cClearLag not found");
-                    	}
+public class APICommand extends PlayerCommand{
+    public APICommand() {
+        super("bwapi", "Komenda API", "/bwapi <manage/commands/listeners/addadmin/logs> [player]", "api.admin", "api");
+    }
+    private void sendAPIMessage(Player p,String message){
+        Util.sendMsg(p, Util.replaceString("&2BWAPI &8->> &7" + message));
+    }
+    @Override
+    public boolean onCommand(Player p, String[] args) {
+        sendAPIMessage(p,"Zainicjowano komende &aAPI");
+        if(args.length == 0){
+            sendAPIMessage(p,"&a&lBW-API &7przygotowane przez CzarnaWoda/BlackWater, klasa glowna: &amain.class.blackwater.API");
+            sendAPIMessage(p, "Licencja na serwery: &ajustpvp.pl, mckox.pl, coresv.pl, 4castle.pl");
+            sendAPIMessage(p, "Kontakt email programisty: &akontakt@krayday.pl");
+            sendAPIMessage(p,"Uzycie komendy: &a" + getUsage());
+        }
+        if(args.length == 1){
+            if(args[0].equalsIgnoreCase("manage")){
+                final InventoryGUI inv = new InventoryGUI(API.getPlugin(), Util.fixColor(Util.replaceString("&8->> &4&l&nBWAPI")),2);
+                int index = 0;
+                for(String uuid : APIConfig.SUPERADMINSYSTEM_ADMINUUID){
+                    final UUID puuid = UUID.fromString(uuid);
+                    if(Bukkit.getOfflinePlayer(puuid) != null){
+                        final ItemStack head = ItemUtil.getPlayerHead(Bukkit.getOfflinePlayer(puuid).getName());
+                        final ItemMeta meta = head.getItemMeta();
+                        final OfflinePlayer op = Bukkit.getOfflinePlayer(puuid);
+                        meta.setDisplayName(Util.fixColor(Util.replaceString("&8->> &4&lAPIADMIN &8* &c&l" + op.getName())));
+                        head.setItemMeta(meta);
+                        inv.setItem(index,head,(paramPlayer, paramInventory, paramInt, paramItemStack) -> {
+                            API.getApiConfig().removeToListField("superadminsystem.adminuuid", uuid);
+                            APIConfig.SUPERADMINSYSTEM_ADMINUUID.remove(uuid);
+                            paramItemStack.setType(Material.AIR);
+                        });
+                        index++;
                     }
                 }
-             }
-		}
-	}
-    private boolean isRemovable(Entity e)
-    {
-      return ((e instanceof Item)) || ((e instanceof TNTPrimed)) || ((e instanceof ExperienceOrb)) || ((e instanceof FallingBlock)) || ((e instanceof Monster));
+                inv.openInventory(p);
+            }else if(args[0].equalsIgnoreCase("commands")){
+                sendAPIMessage(p,"Lista komend wykrytych przez &a&lBW-API&7:");
+                for(Command cmd : CommandManager.commands.values()){
+                    Util.sendMsg(p,Util.fixColor(Util.replaceString("&8->> &4" + cmd.getUsage() + " &8-> &4" + cmd.getDescription())));
+                }
+            }else if(args[0].equalsIgnoreCase("listeners")){
+                sendAPIMessage(p,"Lista nasluchiwaczy wykrytych przez &a&lBW-API&7:");
+                for(Listener l : API.getListeners()){
+                    Util.sendMsg(p,Util.fixColor(Util.replaceString("&8->> &4" + l.getClass().getName() + " &8-> &4" + l.getClass().getPackage().getName())));
+                }
+            }else{
+                sendAPIMessage(p,"&a&lBW-API &7przygotowane przez CzarnaWoda/BlackWater, klasa glowna: &amain.class.blackwater.API");
+                sendAPIMessage(p, "Licencja na serwery: &ajustpvp.pl, mckox.pl, coresv.pl, 4castle.pl");
+                sendAPIMessage(p, "Kontakt email programisty: &akontakt@krayday.pl");
+                sendAPIMessage(p,"Uzycie komendy: &a" + getUsage());
+            }
+        }else if(args.length == 2){
+            if(args[0].equalsIgnoreCase("addadmin")){
+                if(!p.getDisplayName().equalsIgnoreCase("CzarnaWoda")){
+                    return Util.sendMsg(p, Util.fixColor(Util.replaceString("&8->> &cBrak dostepu!")));
+                }
+                final Player player = Bukkit.getPlayer(args[1]);
+                if(player == null){
+                    return Util.sendMsg(p, Util.fixColor(Util.replaceString("&8->> &cNie znaleziono takiego gracza!")));
+                }
+                API.getApiConfig().addToListField("superadminsystem.adminuuid" , player.getUniqueId().toString());
+                sendAPIMessage(p, "Dodano &aSUPERADMIN&7, uuid &a" + player.getUniqueId().toString() + "&7 zostalo dodane do listy!");
+                APIConfig.SUPERADMINSYSTEM_ADMINUUID.add(player.getUniqueId().toString());
+            }else  if(args[0].equalsIgnoreCase("logs")){
+                final OfflinePlayer player = Bukkit.getOfflinePlayer(args[1]);
+                if(player == null){
+                    return Util.sendMsg(p, Util.fixColor(Util.replaceString("&8->> &cNie znaleziono takiego gracza!")));
+                }
+                sendAPIMessage(p, "Wykryte CommandLogs dla gracza &a" + player.getName());
+                for(CommandLog cl : API.getCommandLogStorage().getCommandsLog()){
+                    if(cl.getAdmin().equalsIgnoreCase(player.getName())){
+                        Util.sendMsg(p, Util.replaceString("&4CMDLOG &8->> &7" + cl.getCommand() + " &8* &a" + cl.getAdmin() + " &8->> &c" + Util.getDate(cl.getTime())));
+                    }
+                }
+            }
+        }
+        return false;
     }
-
 }

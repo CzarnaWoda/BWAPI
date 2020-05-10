@@ -4,7 +4,6 @@ import org.bukkit.scheduler.BukkitRunnable;
 import pl.blackwaterapi.API;
 import pl.blackwaterapi.store.Callback;
 import pl.blackwaterapi.store.Store;
-import pl.blackwaterapi.store.StoreMode;
 import pl.blackwaterapi.utils.Logger;
 import pl.blackwaterapi.utils.TimeUtil;
 import pl.blackwaterapi.utils.Timming;
@@ -162,10 +161,5 @@ public class StoreMySQL implements Store
     @Override
     public Connection getConnection() {
         return this.conn;
-    }
-    
-    @Override
-    public StoreMode getStoreMode() {
-        return StoreMode.MYSQL;
     }
 }

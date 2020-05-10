@@ -59,7 +59,7 @@ public class ItemSerializer
         return result;
     }
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
+    @SuppressWarnings({ "unchecked"})
 	private static ItemStack[] deserializeItemStack(Map<String, Object>[] map) {
         ItemStack[] items = new ItemStack[map.length];
         for (int i = 0; i < items.length; ++i) {

@@ -1,5 +1,6 @@
 package pl.blackwaterapi.gui.actions;
 
+import lombok.Data;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
@@ -9,12 +10,15 @@ import org.bukkit.event.inventory.*;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
+import pl.blackwaterapi.API;
+import pl.blackwaterapi.gui.listeners.InventoryListener;
 import pl.blackwaterapi.utils.Util;
 
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.UUID;
 
+@Data
 public class InventoryGUI
   implements Listener
 {
@@ -28,7 +32,7 @@ public InventoryGUI(Plugin plugin, String title, int rows)
     this.inventory = Bukkit.createInventory(null, rows * 9, ChatColor.translateAlternateColorCodes('&', title));
     this.actions = new HashMap<>();
     this.plugin = plugin;
-    Bukkit.getPluginManager().registerEvents(this, plugin);
+    InventoryListener.getInventories().put(this.inventory, this);
   }
   public InventoryGUI clone(){
     InventoryGUI inventoryGUI = new InventoryGUI(plugin,inventory.getTitle(),inventory.getSize()/9);
@@ -115,7 +119,7 @@ public InventoryGUI(Plugin plugin, String title, int rows)
   {
     return this.inventory;
   }
-  
+  /*
   @EventHandler
   public void onInventoryClick(InventoryClickEvent e)
   {
@@ -137,8 +141,8 @@ public InventoryGUI(Plugin plugin, String title, int rows)
       }
     }
   }
-  
-  @EventHandler
+  */
+ /* @EventHandler
   public void onInventoryMoveItemEvent(InventoryMoveItemEvent e)
   {
     if (e.getDestination().equals(this.inventory)) {
@@ -151,6 +155,8 @@ public InventoryGUI(Plugin plugin, String title, int rows)
       e.setCancelled(true);
     }
   }
+
+  */
   
   @EventHandler
   public void onInventoryOpen(InventoryOpenEvent e)
@@ -186,9 +192,9 @@ public InventoryGUI(Plugin plugin, String title, int rows)
   
   @EventHandler
   public void onInventoryDragEvent(InventoryDragEvent e)
-  {
-    if (e.getInventory().equals(this.inventory)) {
-      e.setCancelled(true);
-    }
+    {
+      if (e.getInventory().equals(this.inventory)) {
+        e.setCancelled(true);
+      }
   }
 }
